@@ -1,14 +1,27 @@
 [
     {
         "username": "user1",
-        "password": "test1"
+        "password": "test1",
+        "role": "Admin"
     },
     {
         "username": "user2",
-        "password": "test2"
+        "password": "test2",
+        "role": "Admin"
     },
     {
         "username": "user3",
-        "password": "test3"
+        "password": "test3",
+        "role": "Admin"
+    },
+    {
+        "username": "Luke",
+        "password": "test",
+        "role": "Admin"
+    },
+    {
+        "username": "Lukee",
+        "password": "test",
+        "role": "Visitor"
     }
 ]
