@@ -65,16 +65,19 @@ async function serverListener(req, res) {
       .then((user) => {
         if (req.url === "/users") {
           getAllUsers(req, res);
-        } else if (req.url === "/book" && req.method === "POST") {
+        } else if (req.url === "/book" && req.method === "POST" && user.role == "Admin") {
           createBook(req, res);
-        } else if (req.url === "/book" && req.method === "PATCH") {
+        } else if (req.url === "/book" && req.method === "PATCH" && user.role == "Admin") {
           updateBook(req, res);
-        } else if (req.url === "/book" && req.method === "DELETE") {
+        } else if (req.url === "/book" && req.method === "DELETE" && user.role == "Admin") {
           deleteBook(req, res);
         } else if (req.url === "/book/loan" && req.method === "POST") {
           loanOutBook(req, res);
         } else if (req.url === "/book/return" && req.method === "POST") {
           returnLoanedBook(req, res);
+        } else {
+            res.statusCode = 404;
+            res.end("The route does not exists or you do not have the permission to perform this operation.")
         }
         // TODO: create handler for invalid route
       })
