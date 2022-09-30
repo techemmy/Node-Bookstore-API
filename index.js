@@ -11,18 +11,18 @@ function getUsersFromDb() {
       if (err) {
         reject("Error reading from file");
       }
-      resolve(data);
+        resolve(data);
     });
   });
 }
 
 async function getRequestData(req, res) {
   return new Promise((resolve, reject) => {
-    let data = [];
+    const data = [];
     req.on('data', chunk => {
       data.push(chunk);
     }).on('end', () => {
-      const dataDecoded = Buffer.concat(data).toString('utf-8')
+      const dataDecoded = Buffer.concat(data).toString()
       const parsedData = JSON.parse(dataDecoded)
       resolve(parsedData);
     }).on('error', error => {
@@ -31,34 +31,45 @@ async function getRequestData(req, res) {
   })
 }
 
+function parseUsersData(databaseReturnValue) {
+  let parsedUsersData;
+  if (databaseReturnValue === "") {
+    parsedUsersData = []
+  } else {
+    parsedUsersData = JSON.parse(databaseReturnValue);
+  }
+  return parsedUsersData;
+}
+
 function authenticateUser(req, res, roles) {
   return new Promise(async (resolve, reject) => {
     try {
       const receivedData = await getRequestData(req, res);
-      const userData = receivedData.userLogin;
+      const userLoginData = receivedData.userLogin;
 
-      if (!userData) {
+      if (!userLoginData) {
         return reject("You need to be authenticated to continue");
       }
 
-      const allUsers = await getUsersFromDb();
+      const allRegisteredUsers = await getUsersFromDb();
 
-      const parsedAllUsers = JSON.parse(allUsers);
-      const userFound = parsedAllUsers.find((user) => {
+      const users = parseUsersData(allRegisteredUsers)
+
+      const userFound = users.find((user) => {
         return (
-          user.username === userData.username &&
-          user.password === userData.password
+          user.username === userLoginData.username &&
+          user.password === userLoginData.password
         );
       });
 
-      if (userFound && roles.includes(userData.role)) {
-        return resolve(userFound);
-      } else if (userFound && !roles.includes(userData.role)){
-        res.writeHead(401);
-        return reject("You don't have the required permission to perform this operation.");
+      if (userFound && roles.includes(userFound.role)) {
+        resolve(userFound);
+      } else if (userFound && !roles.includes(userFound.role)){
+        res.writeHead(401, {"content-type": "application/json"});
+        reject("You don't have the required permission to perform this operation.");
       }else {
-        res.writeHead(404);
-        return reject("User doesn't exist! Create a new user.");
+        res.writeHead(404, {"content-type": "application/json"});
+        reject("Your user account doesn't exist! Create a new user.");
       }
     } catch (error) {
       reject(error);
@@ -74,17 +85,16 @@ async function serverListener(req, res) {
     if (req.url === "/user/create" && req.method === "POST") {
       await createUser(req, res);
     } else if (req.url === "/users") {
-      // FIXME: Handle reading from an empty db
-      authenticateUser(req, res, ["admin", "visitor"])
+      await authenticateUser(req, res, ["admin", "visitor"])
       getAllUsers(req, res); 
     } else if (req.url === "/book" && req.method === "POST") {
-      authenticateUser(req, res, ["admin"])
+      await authenticateUser(req, res, ["admin"])
       createBook(req, res);
     } else if (req.url === "/book" && req.method === "PATCH") {
-      authenticateUser(req, res, ["admin"])
+      await authenticateUser(req, res, ["admin"])
       updateBook(req, res);
     } else if (req.url === "/book" && req.method === "DELETE") {
-      authenticateUser(req, res, ["admin"])
+      await authenticateUser(req, res, ["admin"])
       deleteBook(req, res);
     } else if (req.url === "/book/loan" && req.method === "POST") {
       loanOutBook(req, res);
@@ -101,19 +111,23 @@ async function serverListener(req, res) {
   // });
 }
 
+async function getAllUsers(req, res) {
+  try {
+    const users = await getUsersFromDb();
+    res.end(users);
+  } catch (error) {
+    res.end(error)
+  }
+}
+
 async function createUser(req, res) {
   try {
     const userData = await getRequestData(req, res);
-    let usersDB = await getUsersFromDb();
-    let allUsers;
+    const allRegisteredUsers = await getUsersFromDb();
 
-    if (!usersDB) {
-      allUsers=[]
-    } else {
-      allUsers = JSON.parse(usersDB);
-    }
+    const users = parseUsersData(allRegisteredUsers)
 
-    const userExists = allUsers.find((user) => {
+    const userExists = users.find((user) => {
       return user.username === userData.username;
     });
 
@@ -121,8 +135,8 @@ async function createUser(req, res) {
       return res.end("User already exists!");
     }
 
-    allUsers.push(userData);
-    fs.writeFile(usersDbPath, JSON.stringify(allUsers), (error) => {
+    users.push(userData);
+    fs.writeFile(usersDbPath, JSON.stringify(users), (error) => {
       if (error) {
         return res.end(error);
       }
@@ -133,15 +147,6 @@ async function createUser(req, res) {
     console.log(error);
     res.statusCode = 400;
     return res.end("Error creating a new user!");
-  }
-}
-
-async function getAllUsers(req, res) {
-  try {
-    const users = await getUsersFromDb();
-    res.end(users);
-  } catch (error) {
-    res.end(error)
   }
 }
 
