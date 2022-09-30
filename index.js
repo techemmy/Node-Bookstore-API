@@ -1,83 +1,8 @@
 const http = require("http");
-const path = require("path");
 const fs = require("fs");
+const { usersDbPath, getUsersFromDb, writeUsersToDb, getRequestData, parseUsersData, authenticateUser } = require('./utils');
 
 const server = http.createServer(serverListener);
-const usersDbPath = path.join(__dirname, "db", "user.json");
-
-function getUsersFromDb() {
-  return new Promise((resolve, reject) => {
-    fs.readFile(usersDbPath, "utf-8", (err, data) => {
-      if (err) {
-        reject("Error reading from file");
-      }
-        resolve(data);
-    });
-  });
-}
-
-async function getRequestData(req, res) {
-  return new Promise((resolve, reject) => {
-    const data = [];
-    req.on('data', chunk => {
-      data.push(chunk);
-    }).on('end', () => {
-      const dataDecoded = Buffer.concat(data).toString()
-      const parsedData = JSON.parse(dataDecoded)
-      resolve(parsedData);
-    }).on('error', error => {
-      reject(error);
-    })
-  })
-}
-
-function parseUsersData(databaseReturnValue) {
-  let parsedUsersData;
-  if (databaseReturnValue === "") {
-    parsedUsersData = []
-  } else {
-    parsedUsersData = JSON.parse(databaseReturnValue);
-  }
-  return parsedUsersData;
-}
-
-function authenticateUser(req, res, roles) {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const receivedData = await getRequestData(req, res);
-      const userLoginData = receivedData.userLogin;
-
-      if (!userLoginData) {
-        return reject("You need to be authenticated to continue");
-      }
-
-      const allRegisteredUsers = await getUsersFromDb();
-
-      const users = parseUsersData(allRegisteredUsers)
-
-      const userFound = users.find((user) => {
-        return (
-          user.username === userLoginData.username &&
-          user.password === userLoginData.password
-        );
-      });
-
-      if (userFound && roles.includes(userFound.role)) {
-        resolve(userFound);
-      } else if (userFound && !roles.includes(userFound.role)){
-        res.writeHead(401, {"content-type": "application/json"});
-        reject("You don't have the required permission to perform this operation.");
-      }else {
-        res.writeHead(404, {"content-type": "application/json"});
-        reject("Your user account doesn't exist! Create a new user.");
-      }
-    } catch (error) {
-      reject(error);
-    }
-
-    // })
-  });
-}
 
 async function serverListener(req, res) {
   try {
@@ -136,6 +61,11 @@ async function createUser(req, res) {
     }
 
     users.push(userData);
+    await writeUsersToDb(users);
+    res.end(JSON.stringify({
+      message: "User created successfully",
+      user: userData
+    }))
     fs.writeFile(usersDbPath, JSON.stringify(users), (error) => {
       if (error) {
         return res.end(error);
@@ -163,9 +93,11 @@ function updateBook(req, res) {
 function deleteBook(req, res) {
   res.end("update existing book");
 }
+
 function loanOutBook(req, res) {
   res.end("loan out book");
 }
+
 function returnLoanedBook(req, res) {
   res.end("return loaned book");
 }
