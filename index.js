@@ -6,20 +6,22 @@ const server = http.createServer(serverListener);
 
 async function serverListener(req, res) {
   try {
+    const requestData = await getRequestData(req, res);
+
     res.setHeader("Content-Type", "application/json");
     if (req.url === "/user/create" && req.method === "POST") {
-      await createUser(req, res);
+      await createUser(req, res, requestData);
     } else if (req.url === "/users") {
-      await authenticateUser(req, res, ["admin"])
+      await authenticateUser(req, res, ["admin"], requestData)
       getAllUsers(req, res);
     } else if (req.url === "/book" && req.method === "POST") {
-      await authenticateUser(req, res, ["admin"])
-      createBook(req, res);
+      await authenticateUser(req, res, ["admin"], requestData)
+      createBook(req, res, requestData);
     } else if (req.url === "/book" && req.method === "PATCH") {
-      await authenticateUser(req, res, ["admin"])
+      await authenticateUser(req, res, ["admin"], requestData)
       updateBook(req, res);
     } else if (req.url === "/book" && req.method === "DELETE") {
-      await authenticateUser(req, res, ["admin"])
+      await authenticateUser(req, res, ["admin"], requestData)
       deleteBook(req, res);
     } else if (req.url === "/book/loan" && req.method === "POST") {
       loanOutBook(req, res);
@@ -31,6 +33,7 @@ async function serverListener(req, res) {
     }
   } catch(err) {
     console.log(err);
+    res.statusCode = 500;
     res.end(err);
   };
 }
@@ -44,9 +47,8 @@ async function getAllUsers(req, res) {
   }
 }
 
-async function createUser(req, res) {
+async function createUser(req, res, userData) {
   try {
-    const userData = await getRequestData(req, res);
     const allRegisteredUsers = await getUsersFromDb();
 
     const users = parseUsersData(allRegisteredUsers)
@@ -73,9 +75,8 @@ async function createUser(req, res) {
   }
 }
 
-async function createBook(req, res) {
+async function createBook(req, res, newBook) {
   try {
-    const newBook = await getRequestData(req, res);
     console.log(newBook);
     res.end("Create new book");
   } catch (error) {

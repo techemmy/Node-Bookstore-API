@@ -53,12 +53,10 @@ function parseUsersData(databaseReturnValue) {
   return parsedUsersData;
 }
 
-function authenticateUser(req, res, roles) {
+function authenticateUser(req, res, roles, requestData) {
   return new Promise(async (resolve, reject) => {
     try {
-      const receivedData = await getRequestData(req, res);
-
-      const userLoginData = receivedData.userLogin;
+      const userLoginData = requestData.userLogin;
 
       if (!userLoginData) {
         return reject("You need to be authenticated to continue");
@@ -89,8 +87,6 @@ function authenticateUser(req, res, roles) {
     } catch (error) {
       reject(error);
     }
-
-    // })
   });
 }
 
