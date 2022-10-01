@@ -57,7 +57,7 @@ function authenticateUser(req, res, roles) {
   return new Promise(async (resolve, reject) => {
     try {
       const receivedData = await getRequestData(req, res);
-      
+
       const userLoginData = receivedData.userLogin;
 
       if (!userLoginData) {

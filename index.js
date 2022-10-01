@@ -10,8 +10,8 @@ async function serverListener(req, res) {
     if (req.url === "/user/create" && req.method === "POST") {
       await createUser(req, res);
     } else if (req.url === "/users") {
-      await authenticateUser(req, res, ["admin", "visitor"])
-      getAllUsers(req, res); 
+      await authenticateUser(req, res, ["admin"])
+      getAllUsers(req, res);
     } else if (req.url === "/book" && req.method === "POST") {
       await authenticateUser(req, res, ["admin"])
       createBook(req, res);
@@ -66,12 +66,6 @@ async function createUser(req, res) {
       message: "User created successfully",
       user: userData
     }))
-    fs.writeFile(usersDbPath, JSON.stringify(users), (error) => {
-      if (error) {
-        return res.end(error);
-      }
-      return res.end(JSON.stringify(userData));
-    });
 
   } catch (error) {
     console.log(error);
@@ -81,9 +75,14 @@ async function createUser(req, res) {
 }
 
 async function createBook(req, res) {
-  const newBook = await getRequestData(req, res);
-  console.log(newBook);
-  res.end("Create new book");
+  try {
+    const newBook = await getRequestData(req, res);
+    console.log(newBook);
+    res.end("Create new book");
+  } catch (error) {
+    res.writeHead(500)
+    res.end(error);
+  }
 }
 
 function updateBook(req, res) {
