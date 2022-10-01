@@ -80,7 +80,7 @@ async function createBook(req, res) {
     console.log(newBook);
     res.end("Create new book");
   } catch (error) {
-    res.writeHead(500)
+    res.statusCode = 500;
     res.end(error);
   }
 }

@@ -78,12 +78,12 @@ function authenticateUser(req, res, roles) {
       if (userFound && roles.includes(userFound.role)) {
         resolve(userFound);
       } else if (userFound && !roles.includes(userFound.role)) {
-        res.writeHead(401);
+        res.statusCode = 401;
         reject(
           "You don't have the required permission to perform this operation."
         );
       } else {
-        res.writeHead(404);
+        res.statusCode = 404;
         reject("Your user account doesn't exist! Create a new user.");
       }
     } catch (error) {
