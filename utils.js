@@ -25,7 +25,7 @@ function writeUsersToDb(usersArray) {
   })
 }
 
-async function getRequestData(req, res) {
+function getRequestData(req, res) {
   return new Promise((resolve, reject) => {
     const data = [];
     req

@@ -33,7 +33,6 @@ async function serverListener(req, res) {
     console.log(err);
     res.end(err);
   };
-  // });
 }
 
 async function getAllUsers(req, res) {
