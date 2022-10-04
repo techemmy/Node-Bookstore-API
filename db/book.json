@@ -10,10 +10,20 @@
         }
     },
     {
-        "title": "New Book 2",
-        "author": "New Author 2",
-        "isbn": "dds33",
-        "year": 2000,
+        "title": "The Curle",
+        "author": "Clark Kent",
+        "isbn": "as44",
+        "year": 1999,
+        "loanedOut": {
+            "status": false,
+            "to": "null"
+        }
+    },
+    {
+        "title": "Kelly Dags",
+        "author": "Kent Kent",
+        "isbn": "ds1",
+        "year": 2002,
         "loanedOut": {
             "status": false,
             "to": "null"

@@ -32,7 +32,7 @@ async function serverListener(req, res) {
       await updateBook(req, res, requestData.data);
     } else if (req.url === "/book" && req.method === "DELETE") {
       await authenticateUser(req, res, ["admin"], requestData.userLogin);
-      deleteBook(req, res, requestData.data);
+      await deleteBook(req, res, requestData.data);
     } else if (req.url === "/book/loan" && req.method === "POST") {
       loanOutBook(req, res);
     } else if (req.url === "/book/return" && req.method === "POST") {
@@ -127,7 +127,10 @@ async function updateBook(req, res, bookUpdateData) {
     const bookToUpdateIndex = books.findIndex(
       (book) => book.isbn === bookUpdateData.isbn
     );
-    books[bookToUpdateIndex] = { ...books[bookToUpdateIndex], ...bookUpdateData };
+    books[bookToUpdateIndex] = {
+      ...books[bookToUpdateIndex],
+      ...bookUpdateData,
+    };
     await writeToDb(books, booksDbPath);
     res.end(
       JSON.stringify({
@@ -140,8 +143,24 @@ async function updateBook(req, res, bookUpdateData) {
   }
 }
 
-function deleteBook(req, res, bookToDelete) {
-  res.end("update existing book");
+async function deleteBook(req, res, bookToDelete) {
+  const books = parseDatabaseStringValue(await readDatabase(booksDbPath));
+  const bookToDeleteIndex = books.findIndex(
+    (book) => book.isbn === bookToDelete.isbn
+  );
+  if (bookToDeleteIndex == -1) {
+    res.statusCode = 404;
+    return res.end(JSON.stringify({
+      message: "Book doesn't exist"
+    }))
+  }
+  books.splice(bookToDeleteIndex, 1);
+  await writeToDb(books, booksDbPath);
+  res.end(
+    JSON.stringify({
+      message: "Book deleted successfully."
+    })
+  );
 }
 
 function loanOutBook(req, res) {
