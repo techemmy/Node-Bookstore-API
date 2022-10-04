@@ -37,7 +37,8 @@ async function serverListener(req, res) {
       await authenticateUser(req, res, ["admin", "visitor"], requestData.userLogin);
       await loanBook(req, res, requestData);
     } else if (req.url === "/book/return" && req.method === "POST") {
-      returnLoanedBook(req, res);
+      await authenticateUser(req, res, ["admin", "visitor"], requestData.userLogin);
+      await returnLoanedBook(req, res, requestData);
     } else {
       res.statusCode = 404;
       res.end("The route does not exists.");
@@ -213,8 +214,44 @@ async function loanBook(req, res, loanInfo) {
   }));
 }
 
-function returnLoanedBook(req, res) {
-  res.end("return loaned book");
+async function returnLoanedBook(req, res, loanInfo) {
+  const books = parseDatabaseStringValue(await readDatabase(booksDbPath));
+  const bookToLoanIndex = books.findIndex(
+    (book) => book.isbn === loanInfo.data.isbn
+  );
+  if (bookToLoanIndex == -1) {
+    res.statusCode = 404;
+    return res.end(
+      JSON.stringify({
+        message: "Book doesn't exist",
+      })
+    );
+  }
+
+  const bookToLoan = books[bookToLoanIndex]
+  if (bookToLoan.loanedOut.status === false) {
+    res.statusCode = 405;
+    return res.end(
+      JSON.stringify({
+        message: `The book - ${bookToLoan.title} isn't loaned out. You can make a request to loan it`,
+      })
+    );
+  } else if (bookToLoan.loanedOut.status === true && bookToLoan.loanedOut.to !== loanInfo.userLogin.username){
+    res.statusCode = 405;
+    return res.end(
+      JSON.stringify({
+        message:  `The book - ${bookToLoan.title} wasn't loaned to you`,
+      })
+    );
+  }
+
+  bookToLoan.loanedOut.status = false;
+  bookToLoan.loanedOut.to = "null";
+  await writeToDb(books, booksDbPath);
+  res.end(JSON.stringify({
+    message: "You have retuned this book successfully",
+    book: bookToLoan
+  }));
 }
 
 server.listen(3000, "127.0.0.1", () => {
