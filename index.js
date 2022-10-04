@@ -246,7 +246,7 @@ async function returnLoanedBook(req, res, loanInfo) {
   }
 
   bookToLoan.loanedOut.status = false;
-  bookToLoan.loanedOut.to = "null";
+  bookToLoan.loanedOut.to = null;
   await writeToDb(books, booksDbPath);
   res.end(JSON.stringify({
     message: "You have retuned this book successfully",
