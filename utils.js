@@ -2,10 +2,11 @@ const fs = require("fs");
 const path = require("path");
 
 const usersDbPath = path.join(__dirname, "db", "user.json");
+const booksDbPath = path.join(__dirname, "db", "book.json");
 
-function getUsersFromDb() {
+function readDatabase(pathToDatabase) {
   return new Promise((resolve, reject) => {
-    fs.readFile(usersDbPath, "utf-8", (err, data) => {
+    fs.readFile(pathToDatabase, "utf-8", (err, data) => {
       if (err) {
         reject("Error reading from file");
       }
@@ -16,7 +17,7 @@ function getUsersFromDb() {
 
 function writeToDb(newObjArray, Db) {
   return new Promise((resolve, reject) => {
-    fs.writeFile(usersDbPath, JSON.stringify(newObjArray), (error) => {
+    fs.writeFile(Db, JSON.stringify(newObjArray), (error) => {
       if (error) {
         reject(error);
       }
@@ -43,28 +44,26 @@ function getRequestData(req, res) {
   });
 }
 
-function parseUsersData(databaseReturnValue) {
-  let parsedUsersData;
+function parseDatabaseStringValue(databaseReturnValue) {
+  let parsedData;
   if (databaseReturnValue === "") {
-    parsedUsersData = [];
+    parsedData = [];
   } else {
-    parsedUsersData = JSON.parse(databaseReturnValue);
+    parsedData = JSON.parse(databaseReturnValue);
   }
-  return parsedUsersData;
+  return parsedData;
 }
 
-function authenticateUser(req, res, roles, requestData) {
+function authenticateUser(req, res, roles, userLoginData) {
   return new Promise(async (resolve, reject) => {
     try {
-      const userLoginData = requestData.userLogin;
 
       if (!userLoginData) {
         return reject("You need to be authenticated to continue");
       }
 
-      const allRegisteredUsers = await getUsersFromDb();
-
-      const users = parseUsersData(allRegisteredUsers);
+      const allRegisteredUsers = await readDatabase(usersDbPath);
+      const users = parseDatabaseStringValue(allRegisteredUsers);
 
       const userFound = users.find((user) => {
         return (
@@ -92,9 +91,10 @@ function authenticateUser(req, res, roles, requestData) {
 
 module.exports = {
     usersDbPath,
-    getUsersFromDb,
+    booksDbPath,
+    readDatabase,
     writeToDb,
     getRequestData,
-    parseUsersData,
+    parseDatabaseStringValue,
     authenticateUser
 }

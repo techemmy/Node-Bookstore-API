@@ -1,0 +1,12 @@
+[
+    {
+        "title": "New Book",
+        "author": "New Author",
+        "isbn": "abc123",
+        "year": 2020,
+        "loanedOut": {
+            "status": false,
+            "to": "null"
+        }
+    }
+]

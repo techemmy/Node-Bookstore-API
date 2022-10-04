@@ -1,5 +1,5 @@
 const http = require("http");
-const { usersDbPath, getUsersFromDb, writeToDb, getRequestData, parseUsersData, authenticateUser } = require('./utils');
+const { usersDbPath, booksDbPath, readDatabase, writeToDb, getRequestData, parseDatabaseStringValue, authenticateUser } = require('./utils');
 
 const server = http.createServer(serverListener);
 
@@ -11,16 +11,16 @@ async function serverListener(req, res) {
     if (req.url === "/user/create" && req.method === "POST") {
       await createUser(req, res, requestData);
     } else if (req.url === "/users") {
-      await authenticateUser(req, res, ["admin"], requestData)
+      await authenticateUser(req, res, ["admin"], requestData.userLogin)
       getAllUsers(req, res);
     } else if (req.url === "/book" && req.method === "POST") {
-      await authenticateUser(req, res, ["admin"], requestData)
-      createBook(req, res, requestData);
+      await authenticateUser(req, res, ["admin"], requestData.userLogin)
+      await createBook(req, res, requestData.data);
     } else if (req.url === "/book" && req.method === "PATCH") {
-      await authenticateUser(req, res, ["admin"], requestData)
+      await authenticateUser(req, res, ["admin"], requestData.userLogin)
       updateBook(req, res);
     } else if (req.url === "/book" && req.method === "DELETE") {
-      await authenticateUser(req, res, ["admin"], requestData)
+      await authenticateUser(req, res, ["admin"], requestData.userLogin)
       deleteBook(req, res);
     } else if (req.url === "/book/loan" && req.method === "POST") {
       loanOutBook(req, res);
@@ -39,7 +39,7 @@ async function serverListener(req, res) {
 
 async function getAllUsers(req, res) {
   try {
-    const users = await getUsersFromDb();
+    const users = await readDatabase(usersDbPath);
     res.end(users);
   } catch (error) {
     res.end(error)
@@ -48,9 +48,9 @@ async function getAllUsers(req, res) {
 
 async function createUser(req, res, userData) {
   try {
-    const allRegisteredUsers = await getUsersFromDb();
+    const allRegisteredUsers = await readDatabase(usersDbPath);
 
-    const users = parseUsersData(allRegisteredUsers)
+    const users = parseDatabaseStringValue(allRegisteredUsers)
 
     const userExists = users.find((user) => {
       return user.username === userData.username;
@@ -74,10 +74,25 @@ async function createUser(req, res, userData) {
   }
 }
 
-function createBook(req, res, newBook) {
+async function createBook(req, res, newBook) {
   try {
-    console.log(newBook);
-    res.end("Create new book");
+    const books = parseDatabaseStringValue(await readDatabase(booksDbPath));
+    const bookExists = books.find(book => {
+      return book.isbn === newBook.isbn;
+    })
+    if (bookExists) {
+      res.statusCode = 405;
+      return res.end("Book already exists!")
+    }
+
+    books.push(newBook);
+    const newBooks = await writeToDb(books, booksDbPath);
+
+    res.end(JSON.stringify({
+      "message": "Book created succesfully!",
+      "book": newBook
+    }));
+
   } catch (error) {
     res.statusCode = 500;
     res.end(error);
