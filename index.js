@@ -127,6 +127,12 @@ async function updateBook(req, res, bookUpdateData) {
     const bookToUpdateIndex = books.findIndex(
       (book) => book.isbn === bookUpdateData.isbn
     );
+    if (bookToUpdateIndex == -1) {
+      res.statusCode = 404;
+      return res.end(JSON.stringify({
+        message: "Book doesn't exist"
+      }))
+    }
     books[bookToUpdateIndex] = {
       ...books[bookToUpdateIndex],
       ...bookUpdateData,
