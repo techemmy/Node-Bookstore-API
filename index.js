@@ -21,6 +21,9 @@ async function serverListener(req, res) {
     } else if (req.url === "/users") {
       await authenticateUser(req, res, ["admin"], requestData.userLogin);
       getAllUsers(req, res);
+    } else if (req.url === "/books" && req.method === "GET"){
+      await authenticateUser(req, res, ["admin"], requestData.userLogin);
+      await getBooks(req, res);
     } else if (req.url === "/book" && req.method === "POST") {
       await authenticateUser(req, res, ["admin"], requestData.userLogin);
       await createBook(req, res, requestData.data);
@@ -78,6 +81,16 @@ async function createUser(req, res, userData) {
     console.log(error);
     res.statusCode = 400;
     return res.end("Error creating a new user!");
+  }
+}
+
+async function getBooks(req, res) {
+  try {
+    const books = await readDatabase(booksDbPath);
+    if (books === "") return res.end(JSON.stringify([]))
+    res.end(books);
+  } catch (error) {
+    res.end(error);
   }
 }
 
