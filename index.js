@@ -1,6 +1,6 @@
 const http = require("http");
 const fs = require("fs");
-const { usersDbPath, getUsersFromDb, writeUsersToDb, getRequestData, parseUsersData, authenticateUser } = require('./utils');
+const { getUsersFromDb, writeUsersToDb, getRequestData, parseUsersData, authenticateUser } = require('./utils');
 
 const server = http.createServer(serverListener);
 
