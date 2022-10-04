@@ -23,7 +23,7 @@ function writeToDb(newObjArray, Db) {
       }
       resolve(newObjArray);
     });
-  })
+  });
 }
 
 function getRequestData(req, res) {
@@ -57,7 +57,6 @@ function parseDatabaseStringValue(databaseReturnValue) {
 function authenticateUser(req, res, roles, userLoginData) {
   return new Promise(async (resolve, reject) => {
     try {
-
       if (!userLoginData) {
         return reject("You need to be authenticated to continue");
       }
@@ -90,11 +89,11 @@ function authenticateUser(req, res, roles, userLoginData) {
 }
 
 module.exports = {
-    usersDbPath,
-    booksDbPath,
-    readDatabase,
-    writeToDb,
-    getRequestData,
-    parseDatabaseStringValue,
-    authenticateUser
-}
+  usersDbPath,
+  booksDbPath,
+  readDatabase,
+  writeToDb,
+  getRequestData,
+  parseDatabaseStringValue,
+  authenticateUser,
+};

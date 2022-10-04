@@ -21,7 +21,7 @@ async function serverListener(req, res) {
     } else if (req.url === "/users") {
       await authenticateUser(req, res, ["admin"], requestData.userLogin);
       getUsers(req, res);
-    } else if (req.url === "/books" && req.method === "GET"){
+    } else if (req.url === "/books" && req.method === "GET") {
       await authenticateUser(req, res, ["admin"], requestData.userLogin);
       await getBooks(req, res);
     } else if (req.url === "/book" && req.method === "POST") {
@@ -87,7 +87,7 @@ async function createUser(req, res, userData) {
 async function getBooks(req, res) {
   try {
     const books = await readDatabase(booksDbPath);
-    if (books === "") return res.end(JSON.stringify([]))
+    if (books === "") return res.end(JSON.stringify([]));
     res.end(books);
   } catch (error) {
     res.end(error);
@@ -123,13 +123,17 @@ async function createBook(req, res, newBook) {
 async function updateBook(req, res, queryData) {
   try {
     const books = parseDatabaseStringValue(await readDatabase(booksDbPath));
-    const bookToUpdateIndex = books.findIndex(book => book.isbn === queryData.isbn);
-    books[bookToUpdateIndex] = { ...books[bookToUpdateIndex], ...queryData }
+    const bookToUpdateIndex = books.findIndex(
+      (book) => book.isbn === queryData.isbn
+    );
+    books[bookToUpdateIndex] = { ...books[bookToUpdateIndex], ...queryData };
     await writeToDb(books, booksDbPath);
-    res.end(JSON.stringify({
-      message: "Book updated succesfully",
-      book: books[bookToUpdateIndex]
-    }))
+    res.end(
+      JSON.stringify({
+        message: "Book updated succesfully",
+        book: books[bookToUpdateIndex],
+      })
+    );
   } catch (error) {
     res.end(error);
   }
