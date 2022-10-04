@@ -75,7 +75,7 @@ async function createUser(req, res, userData) {
   }
 }
 
-async function createBook(req, res, newBook) {
+function createBook(req, res, newBook) {
   try {
     console.log(newBook);
     res.end("Create new book");
