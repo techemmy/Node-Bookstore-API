@@ -34,7 +34,8 @@ async function serverListener(req, res) {
       await authenticateUser(req, res, ["admin"], requestData.userLogin);
       await deleteBook(req, res, requestData.data);
     } else if (req.url === "/book/loan" && req.method === "POST") {
-      loanOutBook(req, res);
+      await authenticateUser(req, res, ["admin", "visitor"], requestData.userLogin);
+      await loanBook(req, res, requestData);
     } else if (req.url === "/book/return" && req.method === "POST") {
       returnLoanedBook(req, res);
     } else {
@@ -43,7 +44,6 @@ async function serverListener(req, res) {
     }
   } catch (err) {
     console.log(err);
-    res.statusCode = 500;
     res.end(err);
   }
 }
@@ -129,9 +129,11 @@ async function updateBook(req, res, bookUpdateData) {
     );
     if (bookToUpdateIndex == -1) {
       res.statusCode = 404;
-      return res.end(JSON.stringify({
-        message: "Book doesn't exist"
-      }))
+      return res.end(
+        JSON.stringify({
+          message: "Book doesn't exist",
+        })
+      );
     }
     books[bookToUpdateIndex] = {
       ...books[bookToUpdateIndex],
@@ -156,21 +158,59 @@ async function deleteBook(req, res, bookToDelete) {
   );
   if (bookToDeleteIndex == -1) {
     res.statusCode = 404;
-    return res.end(JSON.stringify({
-      message: "Book doesn't exist"
-    }))
+    return res.end(
+      JSON.stringify({
+        message: "Book doesn't exist",
+      })
+    );
   }
   books.splice(bookToDeleteIndex, 1);
   await writeToDb(books, booksDbPath);
   res.end(
     JSON.stringify({
-      message: "Book deleted successfully."
+      message: "Book deleted successfully.",
     })
   );
 }
 
-function loanOutBook(req, res) {
-  res.end("loan out book");
+async function loanBook(req, res, loanInfo) {
+  const books = parseDatabaseStringValue(await readDatabase(booksDbPath));
+  const bookToLoanIndex = books.findIndex(
+    (book) => book.isbn === loanInfo.data.isbn
+  );
+  if (bookToLoanIndex == -1) {
+    res.statusCode = 404;
+    return res.end(
+      JSON.stringify({
+        message: "Book doesn't exist",
+      })
+    );
+  }
+
+  const bookToLoan = books[bookToLoanIndex]
+  if (bookToLoan.loanedOut.status === true && bookToLoan.loanedOut.to === loanInfo.userLogin.username){
+    res.statusCode = 405;
+    return res.end(
+      JSON.stringify({
+        message: "You are with the book already.",
+      })
+    );
+  } else if (bookToLoan.loanedOut.status === true) {
+    res.statusCode = 405;
+    return res.end(
+      JSON.stringify({
+        message: "Please be patient, Another person has loaned the book",
+      })
+    );
+  }
+
+  bookToLoan.loanedOut.status = true;
+  bookToLoan.loanedOut.to = loanInfo.userLogin.username;
+  await writeToDb(books, booksDbPath);
+  res.end(JSON.stringify({
+    message: "You have been loaned this book. Please return it soon!",
+    book: bookToLoan
+  }));
 }
 
 function returnLoanedBook(req, res) {
