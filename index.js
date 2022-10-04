@@ -29,7 +29,7 @@ async function serverListener(req, res) {
       await createBook(req, res, requestData.data);
     } else if (req.url === "/book" && req.method === "PATCH") {
       await authenticateUser(req, res, ["admin"], requestData.userLogin);
-      updateBook(req, res);
+      await updateBook(req, res, requestData.data);
     } else if (req.url === "/book" && req.method === "DELETE") {
       await authenticateUser(req, res, ["admin"], requestData.userLogin);
       deleteBook(req, res);
@@ -120,8 +120,19 @@ async function createBook(req, res, newBook) {
   }
 }
 
-function updateBook(req, res) {
-  res.end("update existing book");
+async function updateBook(req, res, queryData) {
+  try {
+    const books = parseDatabaseStringValue(await readDatabase(booksDbPath));
+    const bookToUpdateIndex = books.findIndex(book => book.isbn === queryData.isbn);
+    books[bookToUpdateIndex] = { ...books[bookToUpdateIndex], ...queryData }
+    await writeToDb(books, booksDbPath);
+    res.end(JSON.stringify({
+      message: "Book updated succesfully",
+      book: books[bookToUpdateIndex]
+    }))
+  } catch (error) {
+    res.end(error);
+  }
 }
 
 function deleteBook(req, res) {
