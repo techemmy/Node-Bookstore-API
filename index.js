@@ -51,6 +51,7 @@ async function serverListener(req, res) {
 async function getUsers(req, res) {
   try {
     const users = await readDatabase(usersDbPath);
+    if (users === "") return res.end(JSON.stringify([]));
     res.end(users);
   } catch (error) {
     res.end(error);
