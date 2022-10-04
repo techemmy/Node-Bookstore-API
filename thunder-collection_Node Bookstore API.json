@@ -1,0 +1,161 @@
+{
+    "client": "Thunder Client",
+    "collectionName": "Node Bookstore API",
+    "dateExported": "2022-10-04T20:40:25.039Z",
+    "version": "1.1",
+    "folders": [],
+    "requests": [
+        {
+            "_id": "944b9b16-efe3-41f3-b168-8bc06685ff8e",
+            "colId": "5befd996-2c7d-4397-8b1a-45dea9559d16",
+            "containerId": "",
+            "name": "Create user",
+            "url": "localhost:3000/user/create",
+            "method": "POST",
+            "sortNum": 10000,
+            "created": "2022-09-23T04:53:17.130Z",
+            "modified": "2022-10-04T03:20:29.169Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"username\": \"user1\",\n  \"password\": \"test1\",\n  \"role\": \"visitor\"\n}\n",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "78000964-9291-4d78-b7c6-93ba52666a30",
+            "colId": "5befd996-2c7d-4397-8b1a-45dea9559d16",
+            "containerId": "",
+            "name": "Get users",
+            "url": "localhost:3000/users",
+            "method": "GET",
+            "sortNum": 20000,
+            "created": "2022-09-23T04:59:06.136Z",
+            "modified": "2022-10-04T02:47:55.932Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"userLogin\": {\n    \"username\": \"user1\",\n    \"password\": \"test1\"\n  }\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "825333dd-41c7-4bf1-ba9c-0c8d365ac43e",
+            "colId": "5befd996-2c7d-4397-8b1a-45dea9559d16",
+            "containerId": "",
+            "name": "Get Books",
+            "url": "localhost:3000/books",
+            "method": "GET",
+            "sortNum": 25000,
+            "created": "2022-10-04T02:42:45.056Z",
+            "modified": "2022-10-04T02:48:06.716Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"userLogin\": {\n    \"username\": \"user1\",\n    \"password\": \"test1\"\n  }\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "c8ec356a-3836-4cf4-8b3e-7f8ee54de284",
+            "colId": "5befd996-2c7d-4397-8b1a-45dea9559d16",
+            "containerId": "",
+            "name": "Create Book",
+            "url": "localhost:3000/book",
+            "method": "POST",
+            "sortNum": 30000,
+            "created": "2022-09-23T06:15:57.807Z",
+            "modified": "2022-10-04T20:19:55.326Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"userLogin\": {\n    \"username\": \"Creek\",\n    \"password\": \"John\"\n  },\n  \"data\": {\n    \"title\": \"Writing good functional code\",\n    \"author\": \"Tech Emmy\",\n    \"isbn\": \"asdf\",\n    \"year\": 2024,\n    \"loanedOut\": {\n      \"status\": false,\n      \"to\": null\n    }\n  }\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "a7f9a001-0bf0-44e3-9f37-afdcb8590935",
+            "colId": "5befd996-2c7d-4397-8b1a-45dea9559d16",
+            "containerId": "",
+            "name": "Update book",
+            "url": "localhost:3000/book",
+            "method": "PATCH",
+            "sortNum": 40000,
+            "created": "2022-10-04T02:49:04.690Z",
+            "modified": "2022-10-04T20:20:50.305Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"userLogin\": {\n    \"username\": \"user2\",\n    \"password\": \"test2\"\n  },\n  \"data\": {\n    \"isbn\": \"asdf\",\n    \"title\": \"Becoming a world class dev\",\n    \"year\": 2025\n  }\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "69c0a4f1-7ad5-47fb-b49a-2913c1f28dbe",
+            "colId": "5befd996-2c7d-4397-8b1a-45dea9559d16",
+            "containerId": "",
+            "name": "Loan book",
+            "url": "localhost:3000/book/loan",
+            "method": "POST",
+            "sortNum": 42500,
+            "created": "2022-10-04T04:29:10.754Z",
+            "modified": "2022-10-04T20:21:27.715Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"userLogin\": {\n    \"username\": \"user1\",\n    \"password\": \"test1\"\n  },\n  \"data\": {\n    \"isbn\": \"asdf\"\n  }\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "c5aab40f-77df-4e41-8150-3bcecae495d8",
+            "colId": "5befd996-2c7d-4397-8b1a-45dea9559d16",
+            "containerId": "",
+            "name": "Return loaned book",
+            "url": "localhost:3000/book/return",
+            "method": "POST",
+            "sortNum": 47500,
+            "created": "2022-10-04T18:30:02.953Z",
+            "modified": "2022-10-04T20:21:36.161Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"userLogin\": {\n    \"username\": \"user1\",\n    \"password\": \"test1\"\n  },\n  \"data\": {\n    \"isbn\": \"asdf\"\n  }\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "f068f6c0-27fc-46e6-b061-920dd116f9db",
+            "colId": "5befd996-2c7d-4397-8b1a-45dea9559d16",
+            "containerId": "",
+            "name": "Delete book",
+            "url": "localhost:3000/book",
+            "method": "DELETE",
+            "sortNum": 50000,
+            "created": "2022-10-04T03:49:50.815Z",
+            "modified": "2022-10-04T20:22:14.450Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"userLogin\": {\n    \"username\": \"Creek\",\n    \"password\": \"John\"\n  },\n  \"data\": {\n    \"isbn\": \"abc123\"\n  }\n}",
+                "form": []
+            },
+            "tests": []
+        }
+    ]
+}
