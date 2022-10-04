@@ -1,6 +1,5 @@
 const http = require("http");
-const fs = require("fs");
-const { getUsersFromDb, writeUsersToDb, getRequestData, parseUsersData, authenticateUser } = require('./utils');
+const { usersDbPath, getUsersFromDb, writeToDb, getRequestData, parseUsersData, authenticateUser } = require('./utils');
 
 const server = http.createServer(serverListener);
 
@@ -62,7 +61,7 @@ async function createUser(req, res, userData) {
     }
 
     users.push(userData);
-    await writeUsersToDb(users);
+    await writeToDb(users, usersDbPath);
     res.end(JSON.stringify({
       message: "User created successfully",
       user: userData

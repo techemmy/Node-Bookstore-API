@@ -14,13 +14,13 @@ function getUsersFromDb() {
   });
 }
 
-function writeUsersToDb(usersArray) {
+function writeToDb(newObjArray, Db) {
   return new Promise((resolve, reject) => {
-    fs.writeFile(usersDbPath, JSON.stringify(usersArray), (error) => {
+    fs.writeFile(usersDbPath, JSON.stringify(newObjArray), (error) => {
       if (error) {
         reject(error);
       }
-      resolve(usersArray);
+      resolve(newObjArray);
     });
   })
 }
@@ -93,7 +93,7 @@ function authenticateUser(req, res, roles, requestData) {
 module.exports = {
     usersDbPath,
     getUsersFromDb,
-    writeUsersToDb,
+    writeToDb,
     getRequestData,
     parseUsersData,
     authenticateUser
