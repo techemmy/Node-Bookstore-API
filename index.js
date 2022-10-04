@@ -32,7 +32,7 @@ async function serverListener(req, res) {
       await updateBook(req, res, requestData.data);
     } else if (req.url === "/book" && req.method === "DELETE") {
       await authenticateUser(req, res, ["admin"], requestData.userLogin);
-      deleteBook(req, res);
+      deleteBook(req, res, requestData.data);
     } else if (req.url === "/book/loan" && req.method === "POST") {
       loanOutBook(req, res);
     } else if (req.url === "/book/return" && req.method === "POST") {
@@ -121,13 +121,13 @@ async function createBook(req, res, newBook) {
   }
 }
 
-async function updateBook(req, res, queryData) {
+async function updateBook(req, res, bookUpdateData) {
   try {
     const books = parseDatabaseStringValue(await readDatabase(booksDbPath));
     const bookToUpdateIndex = books.findIndex(
-      (book) => book.isbn === queryData.isbn
+      (book) => book.isbn === bookUpdateData.isbn
     );
-    books[bookToUpdateIndex] = { ...books[bookToUpdateIndex], ...queryData };
+    books[bookToUpdateIndex] = { ...books[bookToUpdateIndex], ...bookUpdateData };
     await writeToDb(books, booksDbPath);
     res.end(
       JSON.stringify({
@@ -140,7 +140,7 @@ async function updateBook(req, res, queryData) {
   }
 }
 
-function deleteBook(req, res) {
+function deleteBook(req, res, bookToDelete) {
   res.end("update existing book");
 }
 
