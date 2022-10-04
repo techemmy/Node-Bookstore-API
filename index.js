@@ -20,7 +20,7 @@ async function serverListener(req, res) {
       await createUser(req, res, requestData);
     } else if (req.url === "/users") {
       await authenticateUser(req, res, ["admin"], requestData.userLogin);
-      getAllUsers(req, res);
+      getUsers(req, res);
     } else if (req.url === "/books" && req.method === "GET"){
       await authenticateUser(req, res, ["admin"], requestData.userLogin);
       await getBooks(req, res);
@@ -48,7 +48,7 @@ async function serverListener(req, res) {
   }
 }
 
-async function getAllUsers(req, res) {
+async function getUsers(req, res) {
   try {
     const users = await readDatabase(usersDbPath);
     res.end(users);
